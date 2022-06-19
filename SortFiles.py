@@ -13,7 +13,7 @@ def MoveFileToDestination(fileName) :
     newFileName = fileName.replace(extWithDot, extWithDot.lower())
     ext = newFileName.split('.')[-1]
 
-    seconds = os.path.getctime(fileName)
+    seconds = os.path.getmtime(fileName)
     dateStr = datetime.datetime.fromtimestamp(seconds).strftime('%Y-%m')
     yearStr = dateStr.split('-')[0]
     monthStr = dateStr.split('-')[1]
