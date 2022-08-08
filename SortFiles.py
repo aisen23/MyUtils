@@ -4,7 +4,7 @@ import sys
 
 
 imageList = ['jpg', 'jpeg', 'png']
-videoList = ['mp4', 'mov']
+videoList = ['mp4', 'mov', 'mkv']
 audioList = ['mp3', 'wav']
 mediaList = imageList + videoList + audioList
 basePath = os.getcwd()
