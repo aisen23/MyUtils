@@ -32,28 +32,47 @@ def IsAudio(ext):
     return False
 
 
-def TryChangeRegistratorVideoName(fileName):
-    newFileName = fileName
-    eventPrefix = 'EV'
-    normalPrefix = 'NO'
-    if fileName.startswith(eventPrefix):
-        newFileName = fileName.replace(eventPrefix, '')
-    elif fileName.startswith(normalPrefix):
-        newFileName = fileName.replace(normalPrefix, '')
+def MakeUniquePath(path):
+    returnValue = [False, 'StringValue']
 
-    return newFileName
+    if not os.path.isfile(path):
+        return returnValue
+
+    print('File: \"' + path + '\" is exist. Trying to make unique!!!')
+    ext = '.' + path.split('.')[-1]
+    path = path[0 : len(path) - len(ext)]
+
+    index = 0
+    newPath = path + '_' + str(index)
+    while os.path.isfile(newPath + ext):
+        index += 1
+        newPath = path + '_' + str(index)
+
+    newPath += ext
+    print('newPath: ' + newPath)
+
+    returnValue[0] = True
+    returnValue[1] = newPath
+
+    return returnValue
 
 
 def MoveFileToDestination(fileName, filePath, destination):
     ext = fileName.split('.')[-1]
     extWithDot = '.' + ext
-    newFileName = fileName.replace(extWithDot, extWithDot.lower())
-    ext = newFileName.split('.')[-1]
+    ext = ext.lower()
 
     seconds = os.path.getmtime(filePath)
-    dateStr = datetime.datetime.fromtimestamp(seconds).strftime('%Y-%m')
-    yearStr = dateStr.split('-')[0]
-    monthStr = dateStr.split('-')[1]
+    dateStr = datetime.datetime.fromtimestamp(seconds).strftime('%Y-%m-%d-%H-%M-%S')
+    dateStrArray = dateStr.split('-')
+    yearStr = dateStrArray[0]
+    monthStr = dateStrArray[1]
+    dayStr = dateStrArray[2]
+    hourStr = dateStrArray[3]
+    minuteStr = dateStrArray[4]
+    secondStr = dateStrArray[5]
+
+    newFileName = yearStr + monthStr + dayStr + '_' + hourStr + minuteStr + secondStr + extWithDot.lower()
 
     dstPath = os.path.join(destination, yearStr, monthStr)
 
@@ -62,19 +81,28 @@ def MoveFileToDestination(fileName, filePath, destination):
         typeStr = 'image'
     elif IsVideo(ext):
         typeStr = 'video'
-        newFileName = TryChangeRegistratorVideoName(newFileName)
     elif IsAudio(ext):
         typeStr = 'audio'
 
     dstPath = os.path.join(dstPath, typeStr)
-    if not os.path.isdir(dstPath) :
+    if not os.path.isdir(dstPath):
         os.makedirs(dstPath)
     dstPath = os.path.join(dstPath, newFileName)
 
+    moved = False
+    while not moved:
+        if not os.path.isfile(dstPath):
+            print(filePath + ' to ' + dstPath)
+            os.rename(filePath, dstPath)
+            moved = True
+        else:
+            pair = MakeUniquePath(dstPath)
+            if len(pair) == 2 and pair[0]:
+                dstPath = pair[1]
+            else:
+                print('Error: can\'t make unique name.')
+                return
 
-    if not os.path.isfile(dstPath):
-        print(filePath + ' to ' + dstPath)
-        os.rename(filePath, dstPath)
 
 
 def RemoveEmptyDirs(srcPath):
