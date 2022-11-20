@@ -3,118 +3,108 @@ import datetime
 import sys
 
 
-imageList = ['jpg', 'jpeg', 'png']
-videoList = ['mp4', 'mov', 'mkv']
-audioList = ['mp3', 'wav']
-mediaList = imageList + videoList + audioList
-basePath = os.getcwd()
-destPath = os.getcwd()
+__image_list__ = ['jpg', 'jpeg', 'png']
+_video_list__ = ['mp4', 'mov', 'mkv']
+__audio_list__ = ['mp3', 'wav']
+__media_list__ = __image_list__ + _video_list__ + __audio_list__
+__base_path__ = os.getcwd()
+__destination_path__ = os.getcwd()
 
 
-def IsImage(ext):
-    if ext in imageList:
-        return True
-
-    return False
+def is_image(ext):
+    return ext in __image_list__
 
 
-def IsVideo(ext):
-    if ext in videoList:
-        return True
-
-    return False
+def is_video(ext):
+    return ext in _video_list__
 
 
-def IsAudio(ext):
-    if ext in audioList:
-        return True
-
-    return False
+def is_audio(ext):
+    return ext in __audio_list__
 
 
-def MakeUniquePath(path):
-    returnValue = [False, 'StringValue']
+def make_unique_path(path):
+    return_value = [False, 'StringValue']
 
     if not os.path.isfile(path):
-        return returnValue
+        return return_value
 
     print('File: \"' + path + '\" is exist. Trying to make unique!!!')
     ext = '.' + path.split('.')[-1]
-    path = path[0 : len(path) - len(ext)]
+    path = path[0: len(path) - len(ext)]
 
     index = 0
-    newPath = path + '_' + str(index)
-    while os.path.isfile(newPath + ext):
+    new_path = path + '_' + str(index)
+    while os.path.isfile(new_path + ext):
         index += 1
-        newPath = path + '_' + str(index)
+        new_path = path + '_' + str(index)
 
-    newPath += ext
-    print('newPath: ' + newPath)
+    new_path += ext
+    print('newPath: ' + new_path)
 
-    returnValue[0] = True
-    returnValue[1] = newPath
+    return_value[0] = True
+    return_value[1] = new_path
 
-    return returnValue
+    return return_value
 
 
-def MoveFileToDestination(fileName, filePath, destination):
-    ext = fileName.split('.')[-1]
-    extWithDot = '.' + ext
+def move_file(file_path, destination):
+    ext = file_path.split('.')[-1]
+    ext_with_dot = '.' + ext
     ext = ext.lower()
 
-    seconds = os.path.getmtime(filePath)
-    dateStr = datetime.datetime.fromtimestamp(seconds).strftime('%Y-%m-%d-%H-%M-%S')
-    dateStrArray = dateStr.split('-')
-    yearStr = dateStrArray[0]
-    monthStr = dateStrArray[1]
-    dayStr = dateStrArray[2]
-    hourStr = dateStrArray[3]
-    minuteStr = dateStrArray[4]
-    secondStr = dateStrArray[5]
+    seconds = os.path.getmtime(file_path)
+    date_str = datetime.datetime.fromtimestamp(seconds).strftime('%Y-%m-%d-%H-%M-%S')
+    date_str_array = date_str.split('-')
+    year_str = date_str_array[0]
+    month_str = date_str_array[1]
+    day_str = date_str_array[2]
+    hour_str = date_str_array[3]
+    minute_str = date_str_array[4]
+    second_str = date_str_array[5]
 
-    newFileName = yearStr + monthStr + dayStr + '_' + hourStr + minuteStr + secondStr + extWithDot.lower()
+    new_file_name = year_str + month_str + day_str + '_' + hour_str + minute_str + second_str + ext_with_dot.lower()
 
-    dstPath = os.path.join(destination, yearStr, monthStr)
+    dst_path = os.path.join(destination, year_str, month_str)
 
-    typeStr = ''
-    if IsImage(ext):
-        typeStr = 'image'
-    elif IsVideo(ext):
-        typeStr = 'video'
-    elif IsAudio(ext):
-        typeStr = 'audio'
+    type_str = ''
+    if is_image(ext):
+        type_str = 'image'
+    elif is_video(ext):
+        type_str = 'video'
+    elif is_audio(ext):
+        type_str = 'audio'
 
-    dstPath = os.path.join(dstPath, typeStr)
-    if not os.path.isdir(dstPath):
-        os.makedirs(dstPath)
-    dstPath = os.path.join(dstPath, newFileName)
+    dst_path = os.path.join(dst_path, type_str)
+    if not os.path.isdir(dst_path):
+        os.makedirs(dst_path)
+    dst_path = os.path.join(dst_path, new_file_name)
 
     moved = False
     while not moved:
-        if not os.path.isfile(dstPath):
-            print(filePath + ' to ' + dstPath)
-            os.rename(filePath, dstPath)
+        if not os.path.isfile(dst_path):
+            print(file_path + ' to ' + dst_path)
+            os.rename(file_path, dst_path)
             moved = True
         else:
-            pair = MakeUniquePath(dstPath)
+            pair = make_unique_path(dst_path)
             if len(pair) == 2 and pair[0]:
-                dstPath = pair[1]
+                dst_path = pair[1]
             else:
-                print('Error: can\'t make unique name.')
+                print('Error: can\'t make unique path.')
                 return
 
 
-
-def RemoveEmptyDirs(srcPath):
-    for path, subDirs, files in os.walk(srcPath, topdown=False):
-        if not subDirs and not files:
+def remove_empty_directories(src_path):
+    for path, sub_directories, files in os.walk(src_path, topdown=False):
+        if not sub_directories and not files:
             os.rmdir(path)
             print('Remove empty directory: ' + path)
 
 
 def main(argv):
-    source = basePath
-    destination = destPath
+    source = __base_path__
+    destination = __destination_path__
     if len(argv) >= 1:
         path = argv[0]
         if os.path.isdir(path):
@@ -127,15 +117,15 @@ def main(argv):
     print('source: ' + source)
     print('destination: ' + destination)
 
-    for root, dirs, files in os.walk(source):
+    for root, directories, files in os.walk(source):
         for name in files:
-            filePath = os.path.join(root, name)
-            if os.path.isfile(filePath):
+            file_path = os.path.join(root, name)
+            if os.path.isfile(file_path):
                 ext = name.split('.')[-1]
-                if ext.lower() in mediaList:
-                    MoveFileToDestination(name, filePath, destination)
+                if ext.lower() in __media_list__:
+                    move_file(file_path, destination)
 
-    RemoveEmptyDirs(source)
+    remove_empty_directories(source)
 
 
 if __name__ == "__main__":
