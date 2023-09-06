@@ -1,7 +1,7 @@
 # MyUtils
 
 
-* SortFiles.py\n
-	This script sorts your media files in folders by time.\n
-	Using:\n
+* SortFiles.py:          
+	This script sorts your media files in folders by time.
+	Using:
 		python Sortfiles.py \<source directory\> \<target directory\>
